@@ -1,10 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 
 const WHATSAPP_NUMBER = '5599999999999'
-const INSTAGRAM_URL = 'https://www.instagram.com/papodequadrilha/'
-const INSTAGRAM_API_URL = import.meta.env.VITE_INSTAGRAM_API_URL || '/api/instagram?limit=3'
 
 const serviceItems = [
   {
@@ -26,30 +24,6 @@ const marketplaceHighlights = [
   { item: 'Chapeu de cangaceiro premium', type: 'Aluguel', price: 'R$ 180/dia', tone: 'sun' },
   { item: 'Kit aderecos de mao', type: 'Venda', price: 'R$ 350', tone: 'sky' },
   { item: 'Traje completo de noivos', type: 'Aluguel', price: 'R$ 620', tone: 'violet' },
-]
-
-const fallbackPortfolioItems = [
-  {
-    id: 'fallback-1',
-    title: 'Ensaio tecnico da semana',
-    tag: 'Reels',
-    when: 'Atualizacao manual',
-    link: INSTAGRAM_URL,
-  },
-  {
-    id: 'fallback-2',
-    title: 'Bastidores do arraial central',
-    tag: 'Stories',
-    when: 'Atualizacao manual',
-    link: INSTAGRAM_URL,
-  },
-  {
-    id: 'fallback-3',
-    title: 'Highlights da final regional',
-    tag: 'Feed',
-    when: 'Atualizacao manual',
-    link: INSTAGRAM_URL,
-  },
 ]
 
 const testimonials = [
@@ -80,50 +54,8 @@ function makeWhatsAppLink(message) {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`
 }
 
-function formatInstagramDate(timestamp) {
-  if (!timestamp) {
-    return 'Agora'
-  }
-
-  const date = new Date(timestamp)
-
-  if (Number.isNaN(date.getTime())) {
-    return 'Agora'
-  }
-
-  return date.toLocaleDateString('pt-BR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-}
-
-function extractTitle(caption) {
-  if (!caption?.trim()) {
-    return 'Post recente no Instagram'
-  }
-
-  const singleLine = caption.replace(/\s+/g, ' ').trim()
-  return singleLine.length > 72 ? `${singleLine.slice(0, 72)}...` : singleLine
-}
-
-function mapMediaTypeTag(mediaType) {
-  if (mediaType === 'VIDEO') {
-    return 'Video'
-  }
-
-  if (mediaType === 'CAROUSEL_ALBUM') {
-    return 'Carrossel'
-  }
-
-  return 'Feed'
-}
-
 export default function HomePage() {
   const { user } = useAuth()
-  const [instagramPosts, setInstagramPosts] = useState([])
-  const [loadingInstagram, setLoadingInstagram] = useState(true)
-  const [instagramError, setInstagramError] = useState('')
   const [contactForm, setContactForm] = useState({
     name: '',
     eventType: '',
@@ -152,65 +84,6 @@ export default function HomePage() {
     window.open(makeWhatsAppLink(message), '_blank', 'noopener,noreferrer')
   }
 
-  useEffect(() => {
-    let isMounted = true
-
-    const fetchInstagramPosts = async () => {
-      setLoadingInstagram(true)
-
-      try {
-        const response = await fetch(INSTAGRAM_API_URL, {
-          headers: {
-            Accept: 'application/json',
-          },
-        })
-
-        if (!response.ok) {
-          throw new Error('Falha ao buscar feed no backend.')
-        }
-
-        const payload = await response.json()
-        const posts = Array.isArray(payload.data) ? payload.data : []
-
-        if (!isMounted) {
-          return
-        }
-
-        setInstagramPosts(posts.slice(0, 3))
-        setInstagramError('')
-      } catch (error) {
-        console.error('Erro ao carregar feed do Instagram:', error)
-        if (!isMounted) {
-          return
-        }
-
-        setInstagramPosts([])
-        setInstagramError('Feed em tempo real indisponivel. Exibindo destaques manuais.')
-      } finally {
-        if (isMounted) {
-          setLoadingInstagram(false)
-        }
-      }
-    }
-
-    fetchInstagramPosts()
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  const feedItems = instagramPosts.length
-    ? instagramPosts.map((post) => ({
-        id: post.id,
-        title: extractTitle(post.caption),
-        tag: mapMediaTypeTag(post.mediaType),
-        when: formatInstagramDate(post.timestamp),
-        link: post.permalink || INSTAGRAM_URL,
-        mediaUrl: post.mediaUrl || '',
-      }))
-    : fallbackPortfolioItems
-
   return (
     <>
       <section className="home-hero">
@@ -228,10 +101,8 @@ export default function HomePage() {
         <div className="hero-video-overlay" />
         <section className="hero-content">
           <span className="hero-pill">Cobertura no trecho durante o ano inteiro</span>
-          <h2 className="home-headline">Onde o São João acontece o ano inteiro.</h2>
-          <p className="panel-subtitle">
-            Cobertura, divulgação e marketplace junino.
-          </p>
+          <h2 className="home-headline">Onde o Sao Joao acontece o ano inteiro.</h2>
+          <p className="panel-subtitle">Cobertura, divulgacao e marketplace junino.</p>
           <div className="button-row" style={{ marginTop: '1rem' }}>
             <a
               href={makeWhatsAppLink('Quero contratar cobertura para meu evento/ensaio.')}
@@ -267,7 +138,7 @@ export default function HomePage() {
             </article>
             <article className="about-stat-card">
               <strong>+30k</strong>
-              <span>pessoas alcancadas no Instagram</span>
+              <span>pessoas alcancadas nas redes</span>
             </article>
             <article className="about-stat-card">
               <strong>365 dias</strong>
@@ -319,54 +190,6 @@ export default function HomePage() {
           <span>Trajes de Noivos</span>
           <span>Destaques</span>
           <span>Aderecos de Mao</span>
-        </div>
-      </section>
-
-      <section className="panel">
-        <div className="market-header">
-          <div>
-            <h2 className="panel-title">Portfolio / feed em tempo real</h2>
-            <p className="panel-subtitle">
-              Mostrando que estamos no trecho cobrindo ensaios e concursos agora.
-            </p>
-          </div>
-          <a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
-            <button type="button" className="secondary-button">
-              Abrir Instagram
-            </button>
-          </a>
-        </div>
-
-        {loadingInstagram ? (
-          <p className="status-message" style={{ marginTop: '0.6rem' }}>
-            Carregando ultimos posts...
-          </p>
-        ) : null}
-        {instagramError ? (
-          <p className="status-message warn" style={{ marginTop: '0.6rem' }}>
-            {instagramError}
-          </p>
-        ) : null}
-
-        <div className="feed-grid">
-          {feedItems.map((item) => (
-            <a
-              key={item.id}
-              className="feed-card"
-              href={item.link}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {item.mediaUrl ? (
-                <img src={item.mediaUrl} alt={item.title} className="feed-media" loading="lazy" />
-              ) : (
-                <div className="feed-media feed-media-fallback" aria-hidden="true" />
-              )}
-              <span className="feed-tag">{item.tag}</span>
-              <h3>{item.title}</h3>
-              <p>{item.when}</p>
-            </a>
-          ))}
         </div>
       </section>
 

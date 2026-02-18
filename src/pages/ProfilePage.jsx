@@ -288,7 +288,7 @@ export default function ProfilePage() {
                 name="contact"
                 value={adForm.contact}
                 onChange={handleAdChange}
-                placeholder="WhatsApp, Instagram ou telefone"
+                placeholder="WhatsApp ou telefone"
               />
             </label>
 

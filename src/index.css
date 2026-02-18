@@ -385,69 +385,6 @@ section {
   font-size: 0.85rem;
 }
 
-.feed-grid {
-  margin-top: 0.8rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: 0.7rem;
-}
-
-.feed-card {
-  border-radius: 12px;
-  border: 1px solid var(--line);
-  background: rgba(34, 34, 32, 0.56);
-  padding: 0.8rem;
-  display: grid;
-  gap: 0.35rem;
-  overflow: hidden;
-  transition: transform 0.2s ease, border-color 0.2s ease;
-}
-
-.feed-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 181, 2, 0.8);
-}
-
-.feed-media {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: cover;
-  border-radius: 10px;
-  border: 1px solid rgba(89, 184, 193, 0.28);
-  background: rgba(34, 34, 32, 0.7);
-}
-
-.feed-media-fallback {
-  background: linear-gradient(
-    135deg,
-    rgba(244, 23, 61, 0.45) 0%,
-    rgba(83, 76, 156, 0.6) 48%,
-    rgba(89, 184, 193, 0.55) 100%
-  );
-}
-
-.feed-tag {
-  display: inline-flex;
-  width: fit-content;
-  border-radius: 999px;
-  background: rgba(89, 184, 193, 0.2);
-  color: var(--secondary);
-  padding: 0.2rem 0.55rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.feed-card h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
-.feed-card p {
-  margin: 0;
-  color: var(--ink-soft);
-  font-size: 0.9rem;
-}
-
 .quick-actions {
   display: grid;
   gap: 0.55rem;
