@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(userId) {
+      return signedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    match /users/{userId} {
+      allow create: if isSelf(userId)
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.role == 'user';
+
+      allow read: if isSelf(userId) || isAdmin();
+
+      allow update: if isSelf(userId)
+        && request.resource.data.uid == resource.data.uid
+        && request.resource.data.email == resource.data.email
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          'displayName',
+          'photoURL',
+          'bio',
+          'updatedAt'
+        ]);
+
+      allow delete: if false;
+    }
+
+    match /ads/{adId} {
+      allow read: if resource.data.status == 'approved'
+        || (signedIn() && resource.data.ownerId == request.auth.uid)
+        || isAdmin();
+
+      allow create: if signedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.status == 'pending';
+
+      allow update: if isAdmin() || (
+        signedIn()
+        && resource.data.ownerId == request.auth.uid
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.status == 'pending'
+        && request.resource.data.reviewedBy == null
+        && request.resource.data.reviewedAt == null
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly([
+          'title',
+          'description',
+          'price',
+          'category',
+          'contact',
+          'status',
+          'reviewedBy',
+          'reviewedAt',
+          'updatedAt'
+        ])
+      );
+
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerId == request.auth.uid);
+    }
+
+    match /news/{newsId} {
+      allow read: if true;
+      allow create: if isAdmin() && request.resource.data.authorId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+  }
+}
